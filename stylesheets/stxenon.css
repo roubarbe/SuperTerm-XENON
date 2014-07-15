@@ -1,0 +1,64 @@
+body{
+    background: #221f1d;
+    font-size: 18px;
+    font-family: Inconsolata-G, monospace;
+    color: #BDBDBD;
+    margin: 0px;
+    padding: 0px;
+}
+
+span{
+    margin: 0px;
+    padding: 0px;
+    line-height: 18px;
+}
+
+p{
+    margin: 0px;
+    padding: 0px;
+}
+
+.consoleName{
+    margin-left: 10px;
+}
+
+.consolePositionIndicator.active{
+    animation-name: blinkingPosInd;
+    animation-duration: 1s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    
+    -webkit-animation-name: blinkingPosInd;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-iteration-count: infinite;
+}
+
+@keyframes blinkingPosInd {
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+@-webkit-keyframes blinkingPosInd {
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+.consoleOutput{
+    color: #999;
+    margin-left: 10px;
+    margin-top: 18px;
+    margin-bottom: 18px;
+}
+
+.consoleOutputStream{
+    color: #8caacc;
+}
+
+.loadingWheel{
+    width: 18px;
+    height: 18px;
+    margin-left: 18px;
+}
