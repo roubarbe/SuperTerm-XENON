@@ -424,7 +424,7 @@ function showNewCommandLine(){
     consoleElement.appendChild(consolePositionIndicator);
     
     // Cute animated auto-scroll
-    $(document.body).animate({
+    $("body, html").animate({
         scrollTop: consoleElement.scrollHeight
     }, 500);
 }
