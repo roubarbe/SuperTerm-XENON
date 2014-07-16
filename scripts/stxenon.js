@@ -110,7 +110,7 @@ var commandsArray = [
         "name": "echo",
         
         // Generic description of this command
-        "desc": "\"echo\" shows text entered as a parameter, between quotes.",
+        "desc": "[echo] shows text entered as a parameter, between quotes.",
         
         // Does it require at least one parameter? (boolean)
         "parameterRequired": true,
@@ -138,7 +138,7 @@ var commandsArray = [
     {
         "name": "clear",
         
-        "desc": "\"clear\" erases everything onscreen.",
+        "desc": "[clear] erases everything onscreen.",
         
         "parameterRequired": false,
         
@@ -168,7 +168,7 @@ var commandsArray = [
         
         "alias": "?",
         
-        "desc": "\"help\" shows how to use the console and the user-made commands.\"",
+        "desc": "[help] shows how to use the console and the user-made commands.",
         
         "parameterRequired": false,
         
