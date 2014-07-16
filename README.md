@@ -25,7 +25,7 @@ Some neat little effects may require a CSS3-compliant browser.
 Simply join it to your HTML file. Ready to serve. Kind-of.
 You'll have to make your own commands.
 
-See inside stxenon.js for more details
+See [How to make my own commands](https://github.com/roubarbe/SuperTerm-XENON/wiki/How-to-make-my-own-commands%3F) for a detailed guide on how to make a working command.
 
 
 ##LICENSE?
