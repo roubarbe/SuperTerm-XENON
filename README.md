@@ -18,6 +18,8 @@ Basically, this provides you with a functional interface.
 This app/library/whatever requires jQuery and has, for now, worked
 fine with the latest stable release.
 
+jQuery v1.11.0 (minimized) is included.
+
 Some neat little effects may require a CSS3-compliant browser.
 
 
