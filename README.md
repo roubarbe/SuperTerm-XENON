@@ -1,4 +1,4 @@
-SuperTerm-XENON
+SuperTerm XENON
 ===============
 
 Customizable web-based terminal interface
