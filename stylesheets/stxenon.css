@@ -1,3 +1,4 @@
+/* TAGS */
 body{
     background: #221f1d;
     font-size: 18px;
@@ -18,9 +19,7 @@ p{
     padding: 0px;
 }
 
-.consoleName{
-    margin-left: 10px;
-}
+/* THE FOLLOWING SECTION TREATS THE BLINKING POSITON INDICATOR */
 
 .consolePositionIndicator.active{
     animation-name: blinkingPosInd;
@@ -66,6 +65,16 @@ p{
     0% { opacity: 1.0; }
     50% { opacity: 0.0; }
     100% { opacity: 1.0; }
+}
+
+/*********************************************/
+
+
+
+/* CLASSES */
+
+.consoleName{
+    margin-left: 10px;
 }
 
 .consoleOutput{
