@@ -3,6 +3,8 @@ SuperTerm XENON
 
 Customizable web-based terminal interface
 
+Live demo: http://rawgit.com/roubarbe/SuperTerm-XENON/master/stxenon.html
+
 ##WHAT IS THIS?
 St-Zénon is a cute little village in Quebec, thus a 
 play-on-words on a funny-named place.
