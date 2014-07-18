@@ -61,8 +61,8 @@ var motd =  "&nbsp;&nbsp;Make yourself comfortable and play around with this dem
 // Each position represents an error message
 var errCodesArray = [
     /*0*/ "Command execution was successfull.",
-    /*1*/ "Error: [Help] for this command doesn't exist or couldn't execute properly.",
-    /*2*/ "Error: One (1) or more parameters are required.",
+    /*1*/ "[help] for this command doesn't exist or couldn't execute properly.",
+    /*2*/ "One (1) or more parameters are required. See the command's help for usage information.",
     /*3*/ "Unknown error."
 ];
 /********************/
@@ -495,7 +495,7 @@ function keyboardEvents(){
             
             // Error code 0 represents successful completion, all else shows an error message
             if(executionResult != 0){
-                outputToConsole(errCodesArray[executionResult]);
+                outputToConsole(executionResult + ": " + errCodesArray[executionResult]);
             }
             
             // And we show a shiny new command line
