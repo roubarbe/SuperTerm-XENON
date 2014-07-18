@@ -43,7 +43,7 @@
 
 
 /* GLOBAL VARIABLES */
-var currVersion = 0.5; //STX version
+var currVersion = 0.6; //STX version
 
 var consoleUsername = "STX$ "; //Could be anything you want (ex: "C: " or "BellLabs>> ")
 
@@ -51,8 +51,20 @@ var consoleEdition = "SuperTerm XENON"; //This is the name you want to give to t
 
 // And a little Message Of The Day doesn't do much bad
 var motd =  "&nbsp;&nbsp;Make yourself comfortable and play around with this demo!<br>"+
+            "&nbsp;&nbsp;New since 0.6: Error checking with specific error codes.<br><br>"+
             '&nbsp;&nbsp;Type "help" or "?" for information as to available commands and general usage.';
 
+/********************/
+
+
+/* ERROR CODE ARRAY */
+// Each position represents an error message
+var errCodesArray = [
+    /*0*/ "Command execution was successfull.",
+    /*1*/ "Error: [Help] for this command doesn't exist or couldn't execute properly.",
+    /*2*/ "Error: One (1) or more parameters are required.",
+    /*3*/ "Unknown error."
+];
 /********************/
 
 
@@ -118,10 +130,9 @@ var commandsArray = [
         // The actual actions of the command
         "execute": function(data){
             "use strict";
-            
             data = data.join(" ");
-            //console.log(data);
             outputToConsole(data, true);
+            return 0;
         },
         
         // If help is needed, it is shown to the user as a submethod
@@ -221,6 +232,10 @@ function commandParser(enteredCommand){
     // Let's show something's being done
     $(".consolePositionIndicator").remove();
     
+    // Prepare the error code variable (see documentation on error codes)
+    // By default, it gets assigned error code 3 (Unknown error)
+    var errCode = 3;
+    
     // Also, running the spinningWheel function with the bool 'true'
     loadingWheel(true);
     
@@ -249,10 +264,14 @@ function commandParser(enteredCommand){
                 try{
                     // If it does, then we just call the command's own help function
                     commandsArray[i].help();
+                    
+                    //Error code 0 represents successful completion of command
+                    errCode = 0;
                 }
                 
+                // If the 'help' submethod isn't found or can't be executed
                 catch(err){
-                    outputToConsole("Error: No help found for the specified command.",false);
+                    errCode = 1;
                 }
             }
             
@@ -262,15 +281,23 @@ function commandParser(enteredCommand){
                 // If the commands needs a parameter and none were specified
                 if(commandsArray[i].parameterRequired && !parsedCommand[1]){
                     
-                    // Command's own help function
-                    outputToConsole("Error: One (1) or more parameters are required.");
+                    // Error code 2 is applied when no parameters were given but were expected
+                    errCode = 2;
                 }
                 
                 // If one was specified or that the command doesn't need any
                 else{
                     
-                    // Just execute it with or without parameters
-                    commandsArray[i].execute(parameters);
+                    // Try to execute it with or without parameters
+                    try{
+                        commandsArray[i].execute(parameters);
+                        errCode = 0;
+                    }
+                    
+                    // If anything wrong happens
+                    catch(errN){
+                        errCode = 1;
+                    }
                 }
             }
         }
@@ -289,10 +316,13 @@ function commandParser(enteredCommand){
         // If that's not because the user hasn't entered anything
         if(command != ""){
             outputToConsole("Command: [" + enteredCommand + "] is invalid or undetermined.", false);
+            errCode = 0;
         }
         
         // Because if so, then he/she/they shouldn't expect anything to happen.
     }
+    
+    return errCode;
     
 }
 
@@ -347,6 +377,7 @@ function outputToConsole(data, stream){
     
     // Before we do ANYTHING, let's check if data was actually sent here
     if(data == null){
+        // If none were provided, 'data' gets assigned a generic error message
         data =  "An error has occured during execution of the command:<br>"+
                 "No message or text was sent to be shown on screen.";
     }
@@ -459,8 +490,13 @@ function keyboardEvents(){
             // Prevent the browser's default usage of ENTER (Return)
             e.preventDefault();
             
-            // We send what was typed to the parser/analyser
-            commandParser($(".consoleTyping.active").html());
+            // Then sent to the parser, which returns an error code
+            var executionResult = commandParser($(".consoleTyping.active").html());
+            
+            // Error code 0 represents successful completion, all else shows an error message
+            if(executionResult != 0){
+                outputToConsole(errCodesArray[executionResult]);
+            }
             
             // And we show a shiny new command line
             showNewCommandLine();
@@ -482,7 +518,7 @@ function keyboardEvents(){
             // Prevent the browser's default usage of backspace
             e.preventDefault();
             
-            // Take your element's content and remove the last character.
+            // Takes your element's content and remove the last character.
             $(".consoleTyping.active").html($(".consoleTyping.active").html().slice(0,-1));
             
         }
