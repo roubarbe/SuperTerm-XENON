@@ -43,7 +43,7 @@
 
 
 /* GLOBAL VARIABLES */
-var currVersion = 0.6; //STX version
+var currVersion = 0.61; //STX version
 
 var consoleUsername = "STX$ "; //Could be anything you want (ex: "C: " or "BellLabs>> ")
 
@@ -233,8 +233,8 @@ function commandParser(enteredCommand){
     $(".consolePositionIndicator").remove();
     
     // Prepare the error code variable (see documentation on error codes)
-    // By default, it gets assigned error code 3 (Unknown error)
-    var errCode = 3;
+    // By default, it gets assigned error code 0 (successful execution)
+    var errCode = 0;
     
     // Also, running the spinningWheel function with the bool 'true'
     loadingWheel(true);
@@ -527,6 +527,45 @@ function keyboardEvents(){
 
 
 
+/****************************************
+*   function mobileClickEvent           *
+*                                       *
+*   This is a compatibility layer for   *
+*   mobile users. The software keyboard *
+*   won't appear unless focus is made   *
+*   on an input field.
+*****************************************/
+function mobileClickEvent(){
+    "use strict";
+    
+    // When a click or touch event happens
+    $(document).click(function(e){
+        
+        // First, remove all input elements inside the console element
+        $("#consoleElement input").remove();
+        
+        // Create an input element
+        var hiddenInputBox = document.createElement("input");
+        
+        // Set the type to "text"
+        hiddenInputBox.setAttribute("type","text");
+        
+        // Set the id to "hiddenTextBox"
+        hiddenInputBox.setAttribute("id","hiddenTextBox");
+        
+        // It shouldn't show at all.
+        hiddenInputBox.setAttribute("style","visibility:hidden;");
+        
+        // Apply it to the console element
+        document.getElementById("consoleElement").appendChild(hiddenInputBox);
+        
+        // Set the focus on it, so the soft keyboard shows up
+        document.getElementById("hiddenTextBox").focus();
+    });
+}
+
+
+
 /*******************************************************************************
     THIS SECTION DEALS WITH THE INITIAL PAGE LOAD AND GENERAL INITIALISATION
 *******************************************************************************/
@@ -558,6 +597,7 @@ function init(){
     showNewCommandLine();
     
     // Apply event listeners
+    mobileClickEvent();
     keyboardEvents();
 }
 
