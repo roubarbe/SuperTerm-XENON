@@ -541,26 +541,15 @@ function mobileClickEvent(){
     // When a click or touch event happens
     $(document).click(function(e){
         
-        // First, remove all input elements inside the console element
-        $("#consoleElement input").remove();
+        //We have to ask for a prompt
+        var mobileCommand = prompt("Enter command:",$(".consoleTyping.active").html());
         
-        // Create an input element
-        var hiddenInputBox = document.createElement("input");
+        // Make it appear in the console itself
+        $(".consoleTyping.active").html(mobileCommand);
         
-        // Set the type to "text"
-        hiddenInputBox.setAttribute("type","text");
+        //Simulate enter key when we're done
+        $(document).trigger({type: 'keypress', which: 13});
         
-        // Set the id to "hiddenTextBox"
-        hiddenInputBox.setAttribute("id","hiddenTextBox");
-        
-        // It shouldn't show at all.
-        hiddenInputBox.setAttribute("style","visibility:hidden;");
-        
-        // Apply it to the console element
-        document.getElementById("consoleElement").appendChild(hiddenInputBox);
-        
-        // Set the focus on it, so the soft keyboard shows up
-        document.getElementById("hiddenTextBox").focus();
     });
 }
 
@@ -597,7 +586,14 @@ function init(){
     showNewCommandLine();
     
     // Apply event listeners
-    mobileClickEvent();
+    
+    //Mobile compatibility events
+    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        mobileClickEvent();
+    }
+    
+    
+    
     keyboardEvents();
 }
 
