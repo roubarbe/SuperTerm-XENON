@@ -31,6 +31,9 @@ You'll have to make your own commands.
 
 See [How to make my own commands](https://github.com/roubarbe/SuperTerm-XENON/wiki/How-to-make-my-own-commands%3F) for a detailed guide on how to make a working command.
 
+##Whoa, what are these error messages I'm getting?
+Error codes are kind-of documented in the source-code, but I recommend reading [Error Codes](https://github.com/roubarbe/SuperTerm-XENON/wiki/Error-Codes).
+
 
 ##LICENSE?
 You are free to use it, modify it, tattoo your name on it
