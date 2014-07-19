@@ -532,14 +532,15 @@ function keyboardEvents(){
 *                                       *
 *   This is a compatibility layer for   *
 *   mobile users. The software keyboard *
-*   won't appear unless focus is made   *
-*   on an input field.
+*   won't appear unless a prompt        *
+*   is made to appear.                  *
 *****************************************/
 function mobileClickEvent(){
     "use strict";
     
-    // When a click or touch event happens
-    $(document).click(function(e){
+    // Click event is now a "touchend" event. Works on iOS and Android.
+    // Still need to find an MIT-licensed mobile events library to handle "tap"
+    $(document).on('touchend', function(){ 
         
         //We have to ask for a prompt
         var mobileCommand = prompt("Enter command:",$(".consoleTyping.active").html());
@@ -549,7 +550,6 @@ function mobileClickEvent(){
         
         //Simulate enter key when we're done
         $(document).trigger({type: 'keypress', which: 13});
-        
     });
 }
 
