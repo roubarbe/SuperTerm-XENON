@@ -1,5 +1,5 @@
 /*jslint browser: true, eqeq: true, plusplus: true, vars: true, white: true, devel: true */
-/*global $, outputToConsole, showNewCommandLine, loadingWheel*/
+/*global $, outputToConsole, showNewCommandLine, loadingWheel, Hammer*/
 
 
 /**************************************************************************
@@ -538,16 +538,16 @@ function keyboardEvents(){
 function mobileClickEvent(){
     "use strict";
     
-    // Click event is now a "touchend" event. Works on iOS and Android.
-    // Still need to find an MIT-licensed mobile events library to handle "tap"
-    $(document).on('touchend', function(){ 
-        
+    // Touch events triggered through the MIT-licensed Hammer library!
+    var hammerTouchEvent = new Hammer(document.body);
+    hammerTouchEvent.on('tap', function(){
+
         //We have to ask for a prompt
         var mobileCommand = prompt("Enter command:",$(".consoleTyping.active").html());
-        
+
         // Make it appear in the console itself
         $(".consoleTyping.active").html(mobileCommand);
-        
+
         //Simulate enter key when we're done
         $(document).trigger({type: 'keypress', which: 13});
     });
