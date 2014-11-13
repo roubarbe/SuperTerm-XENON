@@ -43,16 +43,24 @@
 
 
 /* GLOBAL VARIABLES */
-var currVersion = 0.61; //STX version
+
+// tab shows four consecutive spaces
+var tab = "&nbsp;&nbsp;&nbsp;&nbsp;";
+
+var currVersion = 0.7; //STX version
 
 var consoleUsername = "STX$ "; //Could be anything you want (ex: "C: " or "BellLabs>> ")
 
 var consoleEdition = "SuperTerm XENON"; //This is the name you want to give to the console
 
 // And a little Message Of The Day doesn't do much bad
-var motd =  "&nbsp;&nbsp;Make yourself comfortable and play around with this demo!<br>"+
-            "&nbsp;&nbsp;New since 0.6: Error checking with specific error codes.<br><br>"+
-            '&nbsp;&nbsp;Type "help" or "?" for information as to available commands and general usage.';
+var motd =  tab + tab + "Make yourself comfortable and play around with this demo!<br>"+
+            tab + tab + "New since 0.7 (highlight): <br>"+
+            tab + tab + tab + "You can now paste in the terminal! <br>"+
+            tab + tab + tab + "Use: \"|\" to execute multiple commands on one line.<br>"+
+            tab + tab + tab + "\"tab\" is a new global variable that instantly applies 4 whitespace characters. Snazzy!<br><br>"+
+            
+            tab + 'Type "help" or "?" for information as to available commands and general usage.';
 
 /********************/
 
@@ -60,10 +68,12 @@ var motd =  "&nbsp;&nbsp;Make yourself comfortable and play around with this dem
 /* ERROR CODE ARRAY */
 // Each position represents an error message
 var errCodesArray = [
-    /*0*/ "Command execution was successfull.",
+    /*0*/ "Command execution was successful.",
     /*1*/ "[help] for this command doesn't exist or couldn't execute properly.",
     /*2*/ "One (1) or more parameters are required. See the command's help for usage information.",
-    /*3*/ "Unknown error."
+    /*3*/ "Unknown error.",
+    /*4*/ "HTTP Request Ended with Error 404. See the command's help for usage information and then contact your administrator for more details.",
+    /*5*/ "HTTP Request Ended with Error 500. Contact your administrator for more details."
 ];
 /********************/
 
@@ -140,7 +150,7 @@ var commandsArray = [
             "use strict";
             outputToConsole(
                 "This command simply outputs the text entered after the command itself, with or without quotes.<br>"+
-                '&nbsp;&nbsp;Example: "echo gordonFreeman" will simply output: "gordonFreeman".'
+                tab + 'Example: "echo gordonFreeman" will simply output: "gordonFreeman".'
             ,false);
         }
     },
@@ -187,7 +197,7 @@ var commandsArray = [
             "use strict";
             outputToConsole(
                 "Using " + consoleEdition + " is like using your favorite *NIX-based terminal.<br>"+
-                "&nbsp;&nbsp;Here are the currently defined commands and what they do: "
+                tab + "Here are the currently defined commands and what they do: "
             ,false);
             
             var i;
@@ -197,7 +207,7 @@ var commandsArray = [
             
             outputToConsole(
                 "For more information, type the command followed by \"help\".<br>"+
-                "&nbsp;&nbsp;Doing that will output the command's own docs."
+                tab + "Doing that will output the command's own docs."
             ,false);
         },
         
@@ -238,62 +248,62 @@ function commandParser(enteredCommand){
     
     // Also, running the spinningWheel function with the bool 'true'
     loadingWheel(true);
-    
+        
     // Then, we cut down the entered text
     var parsedCommand = enteredCommand.split(" ");
-    
+
     // The first array position is the command itself.
     var command = parsedCommand[0];
-    
+
     // Then we take the rest of the array and store it in a variable
     var parameters = parsedCommand.slice(1, parsedCommand.length);
-    
+
     // Simple integer for undetermined commands
     var nbIterations = 0;
-    
+
     // Then we need to check if the entered command exists
     var i;
     for (i = 0; i <= commandsArray.length - 1; i++) {
         if(command == commandsArray[i].name || command == commandsArray[i].alias){
-            
+
             // First of all, was this user asking for help on this command?
             if(parsedCommand[1] == "help"){
-                
+
                 /*  Because errors are part of human nature, we can't trust
                     that the command actually has a help function   */
                 try{
                     // If it does, then we just call the command's own help function
                     commandsArray[i].help();
-                    
+
                     //Error code 0 represents successful completion of command
                     errCode = 0;
                 }
-                
+
                 // If the 'help' submethod isn't found or can't be executed
                 catch(err){
                     errCode = 1;
                 }
             }
-            
+
             // If it was another or no parameters at all
             else{
-                
+
                 // If the commands needs a parameter and none were specified
                 if(commandsArray[i].parameterRequired && !parsedCommand[1]){
-                    
+
                     // Error code 2 is applied when no parameters were given but were expected
                     errCode = 2;
                 }
-                
+
                 // If one was specified or that the command doesn't need any
                 else{
-                    
+
                     // Try to execute it with or without parameters
                     try{
                         commandsArray[i].execute(parameters);
                         errCode = 0;
                     }
-                    
+
                     // If anything wrong happens
                     catch(errN){
                         errCode = 1;
@@ -301,24 +311,24 @@ function commandParser(enteredCommand){
                 }
             }
         }
-        
+
         // If the written command doesn't equal to the currently selected position
         else{
-            
+
             // We increment this variable
             nbIterations++;
         }
     }
-    
+
     // If we went through the list of all available commands without finding a match
     if(nbIterations == commandsArray.length){
-        
+
         // If that's not because the user hasn't entered anything
         if(command != ""){
             outputToConsole("Command: [" + enteredCommand + "] is invalid or undetermined.", false);
             errCode = 0;
         }
-        
+
         // Because if so, then he/she/they shouldn't expect anything to happen.
     }
     
@@ -392,7 +402,7 @@ function outputToConsole(data, stream){
         consoleOutputElement.setAttribute("class","consoleOutput consoleOutputStream");
         
         // And a little bit more indentation
-        data = "&nbsp;&nbsp;" + data;
+        data = tab + data;
     }
     
     // If it's starting or ending or by itself
@@ -401,7 +411,7 @@ function outputToConsole(data, stream){
     }
     
     // We throw our passed string into it
-    consoleOutputElement.innerHTML = "&nbsp;&nbsp;" + data;
+    consoleOutputElement.innerHTML = tab + data;
     
     // And in the console it goes!
     $("#consoleElement").append(consoleOutputElement);
@@ -490,15 +500,25 @@ function keyboardEvents(){
             // Prevent the browser's default usage of ENTER (Return)
             e.preventDefault();
             
-            // Then sent to the parser, which returns an error code
-            var executionResult = commandParser($(".consoleTyping.active").html());
+            /*  Before executing any commands, we check if the user has decided
+                to execute multiple ones on the same line, with the character: "|"
+            */
+            var splitCommands = $(".consoleTyping.active").html().split("|");
             
-            // Error code 0 represents successful completion, all else shows an error message
-            if(executionResult != 0){
-                outputToConsole(executionResult + ": " + errCodesArray[executionResult]);
+            // Then we execute each one with a for loop
+            var i;
+            for (i = 0; i <= splitCommands.length - 1; i++){
+                
+                // Command sent to the parser, which returns an error code
+                var executionResult = commandParser($.trim(splitCommands[i]));
+
+                // Error code 0 represents successful completion, all else shows an error message
+                if(executionResult != 0){
+                    outputToConsole(executionResult + ": " + errCodesArray[executionResult]);
+                }
             }
             
-            // And we show a shiny new command line
+            // And we show a shiny new command line when everything's done.
             showNewCommandLine();
         
         }
@@ -544,13 +564,103 @@ function mobileClickEvent(){
 
         //We have to ask for a prompt
         var mobileCommand = prompt("Enter command:",$(".consoleTyping.active").html());
-
+        
+        /*var textField = document.createElement("input");
+        textField.setAttribute("type","text");
+        textField.setAttribute("id","mobileTextField");
+        textField.setAttribute("autofocus","");*/
+        
+        //$(".consoleTyping.active")
+        
         // Make it appear in the console itself
         $(".consoleTyping.active").html(mobileCommand);
+        
+        //$("#mobileTextField").focus();
+        //$("#mobileTextField").focus();
+        //$("#mobileTextField").focus();
 
         //Simulate enter key when we're done
         $(document).trigger({type: 'keypress', which: 13});
     });
+    
+    /*$(".consolePositionIndicator").remove();
+    
+    var textField = document.createElement("input");
+    textField.setAttribute("type","text");
+    textField.setAttribute("id","mobileTextField");
+    textField.setAttribute("autofocus","");
+    
+    
+
+    // Make it appear in the console itself
+    $(".consoleTyping.active").html(textField);
+    
+    // KeyPress events for the enter key and letters (including spacebar)
+    $(document).keypress(function (e) {
+        
+        // The letter associated with the Key Code is stored in a variable
+        var letterTyped = String.fromCharCode(e.which);
+        
+        // The enter key is associated with the number '13' with Chrome
+        if(e.which == 13) {
+            
+            // Prevent the browser's default usage of ENTER (Return)
+            e.preventDefault();
+            
+            // Then sent to the parser, which returns an error code
+            var executionResult = commandParser($("#mobileTextField").val());
+            
+            // Error code 0 represents successful completion, all else shows an error message
+            if(executionResult != 0){
+                outputToConsole(executionResult + ": " + errCodesArray[executionResult]);
+            }
+            
+            // And we show a shiny new command line
+            showNewCommandLine();
+        
+        }
+        
+        // Since it wasn't enter, we add the typed character.
+        else{
+            //$(".consoleTyping.active").append(letterTyped);
+        }
+    });
+    
+    // The backspace is a keydown event.
+    $(document).keydown(function(e){
+        
+        // Key Code 8 is backspace with Chrome
+        if(e.keyCode == 8) {
+            
+            // Prevent the browser's default usage of backspace
+            e.preventDefault();
+            
+            // Takes your element's content and remove the last character.
+            $(".consoleTyping.active").html($(".consoleTyping.active").html().slice(0,-1));
+            
+        }
+    });*/
+}
+
+
+
+/****************************************
+*   function desktopPasteEvent          *
+*                                       *
+*   Listens for the user pasting        *
+*   content in the terminal and shows   *
+*   it in the currently active          *
+*   input line.                         *
+****************************************/
+function desktopPasteEvent(){
+    "use strict";
+    
+    // First, we listen for the paste event, on any element of the app
+    document.body.onpaste = function(e){
+        
+        // Then we add it at the end of the currently active input line
+        $(".consoleTyping.active").html($(".consoleTyping.active").html() + e.clipboardData.getData("text/plain"));
+    };
 }
 
 
@@ -575,7 +685,13 @@ function init(){
     var consoleElement = document.createElement("div");
     consoleElement.setAttribute("id","consoleElement");
     
+    // You can apply your own logo, if you want
+    var consoleHeaderImage = document.createElement("img");
+    consoleHeaderImage.setAttribute("id","terminalHeaderImage");
+    consoleHeaderImage.setAttribute("src","res/stxlogo.png");
+    
     document.body.appendChild(consoleElement);
+    consoleElement.appendChild(consoleHeaderImage);
     
     //MOTD
     outputToConsole(
@@ -585,16 +701,17 @@ function init(){
     // Show a new command line
     showNewCommandLine();
     
-    // Apply event listeners
-    
     //Mobile compatibility events
     if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
         mobileClickEvent();
     }
-    
-    
-    
+
+    // Checks all key inputs and will also launch the command parser.
     keyboardEvents();
+    
+    // Checks if something was pasted on screen (known to work in Chrome);
+    desktopPasteEvent();
+    
 }
 
 

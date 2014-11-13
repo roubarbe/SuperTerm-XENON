@@ -93,3 +93,15 @@ p{
     height: 18px;
     margin-left: 18px;
 }
+
+#mobileTextField{
+    background: #221f1d;
+    color: #BDBDBD;
+    font-size: 18px;
+    width: 75%;
+    border: 0px solid #000;
+}
+
+#terminalHeaderImage{
+    
+}
