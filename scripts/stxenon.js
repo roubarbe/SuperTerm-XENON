@@ -1,5 +1,5 @@
 /*jslint browser: true, eqeq: true, plusplus: true, vars: true, white: true, devel: true */
-/*global $, outputToConsole, showNewCommandLine, loadingWheel, Hammer*/
+/*global $, outputToConsole, showNewCommandLine, loadingWheel, Hammer, commandsArray*/
 
 
 /**************************************************************************
@@ -47,7 +47,7 @@
 // tab shows four consecutive spaces
 var tab = "&nbsp;&nbsp;&nbsp;&nbsp;";
 
-var currVersion = 0.7; //STX version
+var currVersion = 0.71; //STX version
 
 var consoleUsername = "STX$ "; //Could be anything you want (ex: "C: " or "BellLabs>> ")
 
@@ -55,10 +55,12 @@ var consoleEdition = "SuperTerm XENON"; //This is the name you want to give to t
 
 // And a little Message Of The Day doesn't do much bad
 var motd =  tab + tab + "Make yourself comfortable and play around with this demo!<br>"+
-            tab + tab + "New since 0.7 (highlight): <br>"+
+            tab + tab + "New since 0.71 (highlight): <br>"+
             tab + tab + tab + "You can now paste in the terminal! <br>"+
             tab + tab + tab + "Use: \"|\" to execute multiple commands on one line.<br>"+
-            tab + tab + tab + "\"tab\" is a new global variable that instantly applies 4 whitespace characters. Snazzy!<br><br>"+
+            tab + tab + tab + "\"tab\" is a new global variable that instantly applies 4 whitespace characters. Snazzy!<br>"+
+            tab + tab + tab + "Commands are now in an external file, for better clarity.<br>"+
+            tab + tab + tab + "In-Code Documentation now made to work with JavaDocs.<br><br>"+
             
             tab + 'Type "help" or "?" for information as to available commands and general usage.';
 
@@ -79,145 +81,9 @@ var errCodesArray = [
 
 
 
-/*****************************************************
-    Commands are defined as valid JavaScript objects 
-    with their own sub-variables and sub-methods.
-    
-    They are all part of one array.
-    This makes them iterable and facilitates 
-    adding or modifying them.
-    
-    
-    Let's take the example command "echo".
-    See underneath this for a line-by-line 
-    explanation.
-    
-    First, we have to name it. 
-    This is basically the command itself.
-    
-    Sometimes, commands have other names, thus we
-    define an "alias"
-    
-    After, "desc" is a generic (and rather concise)
-    description of what this command does. This is used by the
-    integrated "help" command
-    
-    Example:
-        
-        "Echo" shows text entered as a parameter, between quotes.
-        
-    
-    Then, we have to figure if this command will
-    require specified parameters.
-    This is a simple boolean (true/false)
-    
-    Afterwards, we have to get it to do 
-    what it needs to do! This needs to be
-    a function named "execute".
-    
-    The variable named "data" is send to the
-    command. Usually a string, this could 
-    really be any type of data.
-    
-    Finally, the function named "help" is
-    self-contained document on how to use
-    the command we just wrote.
-    
-    
-*****************************************************/
-
-var commandsArray = [
-    {
-        // First, we specify the name of the command (string)
-        "name": "echo",
-        
-        // Generic description of this command
-        "desc": "[echo] shows text entered as a parameter, between quotes.",
-        
-        // Does it require at least one parameter? (boolean)
-        "parameterRequired": true,
-        
-        // The actual actions of the command
-        "execute": function(data){
-            "use strict";
-            data = data.join(" ");
-            outputToConsole(data, true);
-            return 0;
-        },
-        
-        // If help is needed, it is shown to the user as a submethod
-        "help": function(){
-            "use strict";
-            outputToConsole(
-                "This command simply outputs the text entered after the command itself, with or without quotes.<br>"+
-                tab + 'Example: "echo gordonFreeman" will simply output: "gordonFreeman".'
-            ,false);
-        }
-    },
-    
-    // The following command could be useful to keep
-    {
-        "name": "clear",
-        
-        "desc": "[clear] erases everything onscreen.",
-        
-        "parameterRequired": false,
-        
-        "execute": function(){
-            "use strict";
-            
-            // Take what's currently on screen
-            var currElements = $("#consoleElement").children();
-            
-            // Fade them out
-            currElements.fadeOut(200, function(){
-                
-                // And remove them!
-                currElements.remove();
-            });
-        },
-        
-        "help": function(){
-            "use strict";
-            outputToConsole(this.desc, false);
-        }
-    },
-    
-    // And this one could REALLY be useful to keep!
-    {
-        "name": "help",
-        
-        "alias": "?",
-        
-        "desc": "[help] shows how to use the console and the user-made commands.",
-        
-        "parameterRequired": false,
-        
-        "execute": function(){
-            "use strict";
-            outputToConsole(
-                "Using " + consoleEdition + " is like using your favorite *NIX-based terminal.<br>"+
-                tab + "Here are the currently defined commands and what they do: "
-            ,false);
-            
-            var i;
-            for (i = 0; i <= commandsArray.length - 1; i++){
-                outputToConsole(commandsArray[i].desc, true);
-            }
-            
-            outputToConsole(
-                "For more information, type the command followed by \"help\".<br>"+
-                tab + "Doing that will output the command's own docs."
-            ,false);
-        },
-        
-        "help": function(){
-            "use strict";
-            outputToConsole("What do you think you are doing here, exactly?",false);
-        }
-    }
-];
-/**********************************************/
+/*
+    Commands are now in an external file, for better editing.
+*/
 
 
 
@@ -227,15 +93,11 @@ var commandsArray = [
 
 
 
-/****************************************
-*   function commandParser              *
-*   @param enteredCommand               *
-*       String passed to the function   *
-*                                       *
-*   Parses the entered string and       *
-*   executes the proper command with    *
-*   the provided (or not) parameters.   *
-*****************************************/
+/**
+    Parses the entered string and executes the proper command with the provided (or not) parameters.
+    @param  {string}    enteredCommand  String passed to the function
+    @return {number}    Returns the error code to the command that triggered the "enter" key.
+*/
 function commandParser(enteredCommand){
     "use strict";
     
@@ -343,14 +205,10 @@ function commandParser(enteredCommand){
 
 
 
-/****************************************
-*   function loadingWheel               *
-*   @param  showOrHide                  *
-*           Boolean to hide or show     *
-*                                       *
-*   Loads(shows) or hides the           *
-*   spinning wheel animation.           *
-*****************************************/
+/**
+    Loads(shows) or hides the spinning wheel animation.
+    @param  showOrHide  {boolean}   Boolean to hide or show
+*/
 function loadingWheel(showOrHide){
     "use strict";
     
@@ -369,19 +227,11 @@ function loadingWheel(showOrHide){
 }
 
 
-/****************************************
-*   function outputToConsole            *
-*   @param data                         *
-*       String to be shown on screen    *
-*                                       *
-*   @param stream                       *
-*       Boolean determining if this     *
-*       is part of a continous stream   *
-*       or a simple one-off.            *
-*                                       *
-*   Takes a string of characters        *
-*   and outputs it to the console.      *
-*****************************************/
+/**
+    Takes a string of characters and outputs it to the console.
+    @param  data    {string}    String to be shown on screen
+    @param  stream  {boolean}   Determines if it's a stream (multiple echos) or not.
+*/
 function outputToConsole(data, stream){
     "use strict";
     
@@ -419,12 +269,9 @@ function outputToConsole(data, stream){
 
 
 
-/****************************************
-*   function showNewCommandLine         *
-*                                       *
-*   Creates and places on page the      *
-*   important elements.                 *
-*****************************************/
+/**
+    Unassigns active input elements and creates new ones to display a new input line.
+*/
 function showNewCommandLine(){
     "use strict";
     
@@ -478,13 +325,9 @@ function showNewCommandLine(){
 
 
 
-/****************************************
-*   function keyboardEvents             *
-*                                       *
-*   Shows, removes letters typed        *
-*   and executes the command parser     *
-*   when enter is pressed.              *
-*****************************************/
+/**
+    Shows, removes letters typed and executes the command parser when enter is pressed.              *
+*/
 function keyboardEvents(){
     "use strict";
     
@@ -547,14 +390,9 @@ function keyboardEvents(){
 
 
 
-/****************************************
-*   function mobileClickEvent           *
-*                                       *
-*   This is a compatibility layer for   *
-*   mobile users. The software keyboard *
-*   won't appear unless a prompt        *
-*   is made to appear.                  *
-*****************************************/
+/**
+    This is a compatibility layer for mobile users. The software keyboard won't appear unless a prompt is made to appear.
+*/
 function mobileClickEvent(){
     "use strict";
     
@@ -565,93 +403,19 @@ function mobileClickEvent(){
         //We have to ask for a prompt
         var mobileCommand = prompt("Enter command:",$(".consoleTyping.active").html());
         
-        /*var textField = document.createElement("input");
-        textField.setAttribute("type","text");
-        textField.setAttribute("id","mobileTextField");
-        textField.setAttribute("autofocus","");*/
-        
-        //$(".consoleTyping.active")
-        
-        // Make it appear in the console itself
+        // Anything typed in the previous prompt gets transfered to the input line
         $(".consoleTyping.active").html(mobileCommand);
-        
-        //$("#mobileTextField").focus();
-        //$("#mobileTextField").focus();
-        //$("#mobileTextField").focus();
 
         //Simulate enter key when we're done
         $(document).trigger({type: 'keypress', which: 13});
     });
-    
-    /*$(".consolePositionIndicator").remove();
-    
-    var textField = document.createElement("input");
-    textField.setAttribute("type","text");
-    textField.setAttribute("id","mobileTextField");
-    textField.setAttribute("autofocus","");
-    
-    
-
-    // Make it appear in the console itself
-    $(".consoleTyping.active").html(textField);
-    
-    // KeyPress events for the enter key and letters (including spacebar)
-    $(document).keypress(function (e) {
-        
-        // The letter associated with the Key Code is stored in a variable
-        var letterTyped = String.fromCharCode(e.which);
-        
-        // The enter key is associated with the number '13' with Chrome
-        if(e.which == 13) {
-            
-            // Prevent the browser's default usage of ENTER (Return)
-            e.preventDefault();
-            
-            // Then sent to the parser, which returns an error code
-            var executionResult = commandParser($("#mobileTextField").val());
-            
-            // Error code 0 represents successful completion, all else shows an error message
-            if(executionResult != 0){
-                outputToConsole(executionResult + ": " + errCodesArray[executionResult]);
-            }
-            
-            // And we show a shiny new command line
-            showNewCommandLine();
-        
-        }
-        
-        // Since it wasn't enter, we add the typed character.
-        else{
-            //$(".consoleTyping.active").append(letterTyped);
-        }
-    });
-    
-    // The backspace is a keydown event.
-    $(document).keydown(function(e){
-        
-        // Key Code 8 is backspace with Chrome
-        if(e.keyCode == 8) {
-            
-            // Prevent the browser's default usage of backspace
-            e.preventDefault();
-            
-            // Takes your element's content and remove the last character.
-            $(".consoleTyping.active").html($(".consoleTyping.active").html().slice(0,-1));
-            
-        }
-    });*/
 }
 
 
 
-/****************************************
-*   function desktopPasteEvent          *
-*                                       *
-*   Listens for the user pasting        *
-*   content in the terminal and shows   *
-*   it in the currently active          *
-*   input line.                         *
-****************************************/
+/**
+    Listens for the user pasting content in the terminal and shows it in the currently active input line.
+*/
 function desktopPasteEvent(){
     "use strict";
     
@@ -671,13 +435,9 @@ function desktopPasteEvent(){
 
 
 
-/****************************************
-*   function init                       *
-*                                       *
-*   Creates the main console element    *
-*   then applies the keyboard events    *
-*   listeners.                          *
-*****************************************/
+/**
+    Creates the main console element then applies the keyboard events listeners.
+*/
 function init(){
     "use strict";
     
@@ -695,7 +455,7 @@ function init(){
     
     //MOTD
     outputToConsole(
-        consoleEdition + " " + currVersion + "<br>"+motd
+        consoleEdition + " " + currVersion + "<br>" + motd
     );
     
     // Show a new command line
@@ -715,8 +475,9 @@ function init(){
 }
 
 
-
-// Done loading? Fire it up!
+/**
+    Using jQuery's "ready" method, we wait until all ressources are done loading until we launch initialization of the terminal
+*/
 $(document).ready(function () {
     
     "use strict"; // Gotta lint
